@@ -3,7 +3,6 @@ import random
 
 
 def load_words(file_path="/usr/share/dict/words"):
-    """Load valid words from the dictionary file."""
     try:
         with open(file_path, 'r') as file:
             return set(word.strip().lower() for word in file)
