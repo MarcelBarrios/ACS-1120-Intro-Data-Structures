@@ -1,4 +1,5 @@
 import re
+import random
 from collections import defaultdict
 
 
@@ -32,6 +33,17 @@ def save_histogram(histogram, filename="histogram.txt"):
             file.write(f"{word} {count}\n")
 
 
+def stochastic_sampling(histogram):
+    total_count = sum(histogram.values())
+    threshold = random.uniform(0, total_count)
+    cumulative = 0
+
+    for word, count in histogram.items():
+        cumulative += count
+        if threshold <= cumulative:
+            return word
+
+
 if __name__ == "__main__":
     try:
         with open("wealth_of_nations.txt", "r", encoding="utf-8") as file:
@@ -48,6 +60,8 @@ if __name__ == "__main__":
         print("Frequency of 'nations':", frequency("nations", histogram))
         print("Frequency of 'economy':", frequency(
             "economy", histogram))
+
+        print("stochatic sampling func: ", stochastic_sampling(histogram))
 
     except FileNotFoundError:
         print("Error: File 'Wealth_of_Nations.txt' not found. Make sure it exists in the same directory.")
