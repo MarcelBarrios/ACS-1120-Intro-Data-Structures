@@ -1,26 +1,29 @@
 #!python
 
 from __future__ import division, print_function  # Python 2 and 3 compatibility
+import re
 import random
 
 
 class Listogram(list):
     """Listogram is a histogram implemented as a subclass of the list type."""
 
-    def __init__(self, word_list=None):
+    def __init__(self, text=None):
         """Initialize this histogram as a new list and count given words."""
-        super(Listogram, self).__init__()  # Initialize this as a new list
-        # Add properties to track useful word counts for this histogram
-        self.types = 0  # Count of distinct word types in this histogram
-        self.tokens = 0  # Total count of all word tokens in this histogram
-        # Count words in given list, if any
-        if word_list is not None:
-            for word in word_list:
+        super(Listogram, self).__init__()  # Initialize as a new list
+        self.types = 0  # Count of distinct word types
+        self.tokens = 0  # Total count of all word tokens
+        if text is not None:
+            words = self.tokenize(text)
+            for word in words:
                 self.add_count(word)
 
+    def tokenize(self, text):
+        """Extract words from text and return as a list."""
+        return re.findall(r'\b\w+\b', text.lower())
+
     def add_count(self, word, count=1):
-        """Increase frequency count of given word by given count amount."""
-        # TODO: Increase word frequency by count
+        """Increase frequency count of given word."""
         for item in self:
             if item[0] == word:
                 item[1] += count
@@ -31,41 +34,49 @@ class Listogram(list):
         self.tokens += count
 
     def frequency(self, word):
-        """Return frequency count of given word, or 0 if word is not found."""
-        # TODO: Retrieve word frequency count
+        """Return frequency count of given word, or 0 if not found."""
         for item in self:
             if item[0] == word:
                 return item[1]
         return 0
 
+    def save_histogram(self, filename="histogram.txt"):
+        """Save the histogram to a file."""
+        sorted_hist = sorted(self, key=lambda x: x[1], reverse=True)
+        with open(filename, "w", encoding="utf-8") as file:
+            for word, count in sorted_hist:
+                file.write(f"{word} {count}\n")
+
+    def stochastic_sampling(self):
+        """Return a word from this histogram based on weighted probability."""
+        threshold = random.uniform(0, self.tokens)
+        cumulative = 0
+        for word, count in self:
+            cumulative += count
+            if threshold <= cumulative:
+                return word
+
+    def unique_words(self):
+        """Return the number of unique words in the histogram."""
+        return self.types
+
     def __contains__(self, word):
-        """Return boolean indicating if given word is in this histogram."""
-        # TODO: Check if word is in this histogram
+        """Check if word exists in histogram."""
         for item in self:
             if item[0] == word:
                 return True
         return False
 
     def index_of(self, target):
-        """Return the index of entry containing given target word if found in
-        this histogram, or None if target word is not found."""
-        # TODO: Implement linear search to find index of entry with target word
+        """Return the index of the target word if found, else None."""
         for index, item in enumerate(self):
             if item[0] == target:
                 return index
         return None
 
     def sample(self):
-        """Return a word from this histogram, randomly sampled by weighting
-        each word's probability of being chosen by its observed frequency."""
-        # TODO: Randomly choose a word based on its frequency in this histogram
-        total = self.tokens
-        dart = random.randint(1, total)
-        fence = 0
-        for word, count in self:
-            fence += count
-            if dart <= fence:
-                return word
+        """Return a word randomly sampled based on frequency."""
+        return self.stochastic_sampling()
 
 
 def print_histogram(word_list):
