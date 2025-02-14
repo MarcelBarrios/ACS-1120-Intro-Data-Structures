@@ -1,0 +1,154 @@
+#!python
+
+from __future__ import division, print_function  # Python 2 and 3 compatibility
+import re
+import random
+
+
+class Listogram(list):
+    """Listogram is a histogram implemented as a subclass of the list type."""
+
+    def __init__(self, text=None):
+        """Initialize this histogram as a new list and count given words."""
+        super(Listogram, self).__init__()  # Initialize as a new list
+        self.types = 0  # Count of distinct word types
+        self.tokens = 0  # Total count of all word tokens
+        if text is not None:
+            words = self.tokenize(text)
+            for word in words:
+                self.add_count(word)
+
+    def tokenize(self, text):
+        """Extract words from text and return as a list."""
+        return re.findall(r'\b\w+\b', text.lower())
+
+    def add_count(self, word, count=1):
+        """Increase frequency count of given word."""
+        for item in self:
+            if item[0] == word:
+                item[1] += count
+                self.tokens += count
+                return
+        self.append([word, count])
+        self.types += 1
+        self.tokens += count
+
+    def frequency(self, word):
+        """Return frequency count of given word, or 0 if not found."""
+        for item in self:
+            if item[0] == word:
+                return item[1]
+        return 0
+
+    def save_histogram(self, filename="histogram.txt"):
+        """Save the histogram to a file."""
+        sorted_hist = sorted(self, key=lambda x: x[1], reverse=True)
+        with open(filename, "w", encoding="utf-8") as file:
+            for word, count in sorted_hist:
+                file.write(f"{word} {count}\n")
+
+    def stochastic_sampling(self):
+        """Return a word from this histogram based on weighted probability."""
+        threshold = random.uniform(0, self.tokens)
+        cumulative = 0
+        for word, count in self:
+            cumulative += count
+            if threshold <= cumulative:
+                return word
+
+    def unique_words(self):
+        """Return the number of unique words in the histogram."""
+        return self.types
+
+    def __contains__(self, word):
+        """Check if word exists in histogram."""
+        for item in self:
+            if item[0] == word:
+                return True
+        return False
+
+    def index_of(self, target):
+        """Return the index of the target word if found, else None."""
+        for index, item in enumerate(self):
+            if item[0] == target:
+                return index
+        return None
+
+    def sample(self):
+        """Return a word randomly sampled based on frequency."""
+        return self.stochastic_sampling()
+
+
+def print_histogram(word_list):
+    print()
+    print('Histogram:')
+    print('word list: {}'.format(word_list))
+    # Create a listogram and display its contents
+    histogram = Listogram(word_list)
+    print('listogram: {}'.format(histogram))
+    print('{} tokens, {} types'.format(histogram.tokens, histogram.types))
+    for word in word_list[-2:]:
+        freq = histogram.frequency(word)
+        print('{!r} occurs {} times'.format(word, freq))
+    print()
+    print_histogram_samples(histogram)
+
+
+def print_histogram_samples(histogram):
+    print('Histogram samples:')
+    # Sample the histogram 10,000 times and count frequency of results
+    samples_list = [histogram.sample() for _ in range(10000)]
+    samples_hist = Listogram(samples_list)
+    print('samples: {}'.format(samples_hist))
+    print()
+    print('Sampled frequency and error from observed frequency:')
+    header = '| word type | observed freq | sampled freq  |  error  |'
+    divider = '-' * len(header)
+    print(divider)
+    print(header)
+    print(divider)
+    # Colors for error
+    green = '\033[32m'
+    yellow = '\033[33m'
+    red = '\033[31m'
+    reset = '\033[m'
+    # Check each word in original histogram
+    for word, count in histogram:
+        # Calculate word's observed frequency
+        observed_freq = count / histogram.tokens
+        # Calculate word's sampled frequency
+        samples = samples_hist.frequency(word)
+        sampled_freq = samples / samples_hist.tokens
+        # Calculate error between word's sampled and observed frequency
+        error = (sampled_freq - observed_freq) / observed_freq
+        color = green if abs(error) < 0.05 else yellow if abs(
+            error) < 0.1 else red
+        print('| {!r:<9} '.format(word)
+              + '| {:>4} = {:>6.2%} '.format(count, observed_freq)
+              + '| {:>4} = {:>6.2%} '.format(samples, sampled_freq)
+              + '| {}{:>+7.2%}{} |'.format(color, error, reset))
+    print(divider)
+    print()
+
+
+def main():
+    import sys
+    arguments = sys.argv[1:]  # Exclude script name in first argument
+    if len(arguments) >= 1:
+        # Test histogram on given arguments
+        print_histogram(arguments)
+    else:
+        # Test histogram on letters in a word
+        word = 'abracadabra'
+        print_histogram(list(word))
+        # Test histogram on words in a classic book title
+        fish_text = 'one fish two fish red fish blue fish'
+        print_histogram(fish_text.split())
+        # Test histogram on words in a long repetitive sentence
+        woodchuck_text = ('how much wood would a wood chuck chuck'
+                          ' if a wood chuck could chuck wood')
+        print_histogram(woodchuck_text.split())
+
+
+if __name__ == '__main__':
+    main()
