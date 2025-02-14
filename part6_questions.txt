@@ -1,0 +1,53 @@
+1. Key Features and Their Organization:
+
+I need to ensure that each key feature of my application is modularized into its own file, class, or module. 
+For example, if I’ve implemented a histogram, it should have its own module, separate from components like the 
+Markov chain or sampling functions. This will make my codebase easier to navigate and maintain.
+
+2. Naming Conventions:
+
+I should use clear and descriptive names for my files, modules, functions, and variables. This way, any new 
+programmer (including my future self) can understand the purpose of each component without needing too much
+background knowledge. For instance, if a file contains histogram-related functions, I should name it 
+histogram.py, and if I have a class for managing histograms, I should call it Histogram.
+
+3. Variable Scopes:
+
+I need to make sure my variables have the narrowest possible scope to avoid unintended side effects. If 
+I’m using global variables, I should have a clear reason why they’re necessary and document their purpose.
+ Ideally, I should encapsulate variables inside classes or functions so they’re easier to manage.
+
+4. Function Design:
+
+My functions should be small, focused on a single task, and have as few side effects as possible. This makes 
+my code easier to test and understand. If a function is becoming too complex, I should break it down into 
+smaller helper functions. For example, instead of having one function that processes text and builds a 
+histogram, I could separate those tasks into two functions.
+
+5. Object-Oriented Design:
+
+If I have multiple functions that operate on shared data or are closely related, I should consider organizing 
+them into a class. This helps with reusability and keeps my code more structured. For instance, instead of
+ having separate functions for adding words to a histogram and checking their frequency, I could define a
+  Histogram class with methods like add_word and get_frequency. That would make my code more maintainable 
+  and easier to extend.
+
+6. Module Usability:
+
+I should design my modules so that they can be both imported into other scripts and run as standalone programs.
+ To do this, I need to include a conditional block like:
+
+if __name__ == "__main__":
+    # Code to execute when the module is run as a script
+
+This way, I can reuse my module’s functions elsewhere without running the script-specific code.
+
+7. Module Dependencies:
+
+I need to minimize dependencies between my modules so that they can function independently. This makes my
+ code easier to test and maintain. For example, a module responsible for text input and output should not
+  depend on the internal details of a histogram module. Instead, it should interact with it through a
+   well-defined interface.
+
+By following these principles, I can make my application’s architecture clearer, more maintainable, and
+ easier to scale.
