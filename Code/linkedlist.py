@@ -19,6 +19,7 @@ class LinkedList:
         """Initialize this linked list and append the given items, if any."""
         self.head = None  # First node
         self.tail = None  # Last node
+        self.size = 0  # Track the length of the linked list
         # Append given items
         if items is not None:
             for item in items:
