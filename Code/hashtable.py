@@ -71,9 +71,9 @@ class HashTable(object):
         TODO: Running time: O(???) Why and under what conditions?"""
         # TODO: Find bucket where given key belongs
         # TODO: Check if key-value entry exists in bucket
-        index = self._bucket_index(key)  # Get the bucket index
-        bucket = self.buckets[index]  # Get the actual bucket (LinkedList)
-        return bucket.find(lambda item: item[0] == key) is not None
+        index = self._bucket_index(key)
+        bucket = self.buckets[index]
+        return bool(bucket.find(lambda item: item[0] == key))
 
     def get(self, key):
         """Return the value associated with the given key, or raise KeyError.
@@ -86,7 +86,7 @@ class HashTable(object):
         index = self._bucket_index(key)
         bucket = self.buckets[index]
         item = bucket.find(lambda item: item[0] == key)
-        if item is not None:
+        if isinstance(item, tuple):  # Ensure it's a key-value pair
             return item[1]
         raise KeyError('Key not found: {}'.format(key))
 
@@ -115,7 +115,7 @@ class HashTable(object):
         index = self._bucket_index(key)
         bucket = self.buckets[index]
         item = bucket.find(lambda item: item[0] == key)
-        if item:
+        if isinstance(item, tuple):  # Ensure it's a valid key-value pair
             bucket.delete(item)
         else:
             raise KeyError('Key not found: {}'.format(key))
