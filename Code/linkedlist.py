@@ -93,10 +93,12 @@ class LinkedList:
         # TODO: Loop through all nodes to find item, if present return True otherwise False
         current = self.head
         while current is not None:
-            print(
-                f"Checking item: {current.data}, Condition type: {type(matcher)}")
-            if matcher(current.data):
-                return current.data
+            if callable(matcher):  # If matcher is a function, call it
+                if matcher(current.data):
+                    return current.data
+            else:  # If matcher is a direct value, compare it directly
+                if current.data == matcher:
+                    return current.data
             current = current.next
         return None
 
