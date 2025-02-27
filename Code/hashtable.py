@@ -86,8 +86,8 @@ class HashTable(object):
         index = self._bucket_index(key)
         bucket = self.buckets[index]
         item = bucket.find(lambda item: item[0] == key)
-        if isinstance(item, tuple):  # Ensure it's a key-value pair
-            return item[1]
+        if item is not None:
+            return item[1]  # Return the value
         raise KeyError('Key not found: {}'.format(key))
 
     def set(self, key, value):
@@ -100,7 +100,8 @@ class HashTable(object):
         index = self._bucket_index(key)
         bucket = self.buckets[index]
         existing_item = bucket.find(lambda item: item[0] == key)
-        if existing_item:
+        if existing_item is not None:
+            # Ensure it deletes the actual key-value pair
             bucket.delete(existing_item)
         bucket.append((key, value))
 
@@ -115,7 +116,7 @@ class HashTable(object):
         index = self._bucket_index(key)
         bucket = self.buckets[index]
         item = bucket.find(lambda item: item[0] == key)
-        if isinstance(item, tuple):  # Ensure it's a valid key-value pair
+        if item is not None:
             bucket.delete(item)
         else:
             raise KeyError('Key not found: {}'.format(key))
