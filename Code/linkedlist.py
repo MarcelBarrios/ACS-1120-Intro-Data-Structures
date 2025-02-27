@@ -91,16 +91,20 @@ class LinkedList:
         TODO: Best case running time: O(???) Why and under what conditions?
         TODO: Worst case running time: O(???) Why and under what conditions?"""
         # TODO: Loop through all nodes to find item, if present return True otherwise False
+        if not callable(matcher):
+            raise TypeError(
+                f"Expected a function, but got {type(matcher)}: {matcher}")
+
         current = self.head
         while current is not None:
-            # Debugging
             print(
                 f"Checking node: {current.data}, matcher result: {matcher(current.data)}")
-            if matcher(current.data):  # Ensure matcher works correctly
-                print(f"Match found: {current.data}")  # Debugging print
+            if matcher(current.data):
+                print(f"Match found: {current.data}")
                 return current.data
             current = current.next
-        print("No match found")  # Debugging print
+
+        print("No match found")
         return None
 
     def delete(self, item):
