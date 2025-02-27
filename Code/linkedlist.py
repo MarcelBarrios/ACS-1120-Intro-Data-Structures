@@ -94,7 +94,7 @@ class LinkedList:
         current = self.head
         while current is not None:
             print(
-                f"Checking item: {current.data}, Condition type: {type(condition)}")
+                f"Checking item: {current.data}, Condition type: {type(matcher)}")
             if matcher(current.data):
                 return current.data
             current = current.next
