@@ -93,10 +93,12 @@ class LinkedList:
         # TODO: Loop through all nodes to find item, if present return True otherwise False
         current = self.head
         while current is not None:
+            print(
+                f"Checking item: {current.data}, Condition type: {type(condition)}")
             if matcher(current.data):
-                return current.data  # Return the found item
+                return current.data
             current = current.next
-        return None  # Ensure it returns None instead of False
+        return None
 
     def delete(self, item):
         """Delete the given item from this linked list, or raise ValueError.
