@@ -1,8 +1,9 @@
 import random
+import re
 
 
 class SentenceGenerator:
-    """Generates a Markov Chain model and produces random sentences."""
+    """Generates a Markov Chain model using trigrams and produces random sentences."""
 
     def __init__(self, filename):
         """Initialize with a filename and process the text."""
@@ -11,48 +12,59 @@ class SentenceGenerator:
         self.markov_chain = self.build_markov_chain()
 
     def read_file(self):
-        """Reads a text file and returns a list of words."""
+        """Reads a text file, removes non-word characters, and returns a list of words."""
         try:
             with open(self.filename, "r", encoding="utf-8") as file:
-                text = file.read()
-            words = text.lower().split()  # Convert to lowercase and split into words
+                text = file.read().lower()  # Convert to lowercase
+
+            # Remove all characters that are not letters or spaces
+            cleaned_text = re.sub(r"[^a-z\s]", "", text)
+
+            # Split into words
+            words = cleaned_text.split()
             return words
+
         except FileNotFoundError:
             print(f"Error: File '{self.filename}' not found.")
             return []
 
     def build_markov_chain(self):
-        """Creates a Markov chain (dictionary of word transitions)."""
+        """Creates a Markov chain using trigrams (triples of words)."""
         markov_chain = {}
-        for i in range(len(self.words) - 1):
-            word, next_word = self.words[i], self.words[i + 1]
-            if word not in markov_chain:
-                markov_chain[word] = []
-            markov_chain[word].append(next_word)
+
+        for i in range(len(self.words) - 2):
+            key = (self.words[i], self.words[i + 1])  # Two-word key (bigram)
+            next_word = self.words[i + 2]  # Next word to follow
+
+            if key not in markov_chain:
+                markov_chain[key] = []
+            markov_chain[key].append(next_word)
+
         return markov_chain
 
-    def generate_sentence(self, start_word=None, length=15):
+    def generate_sentence(self, start_words=None, length=15):
         """Generates a random sentence using the Markov chain with weighted randomness."""
         if not self.markov_chain:
             return "Markov chain is empty. Unable to generate a sentence."
 
-        if not start_word:
-            # Pick a random start word
-            start_word = random.choice(list(self.markov_chain.keys()))
+        if not start_words or start_words not in self.markov_chain:
+            # Pick a random start word pair
+            start_words = random.choice(list(self.markov_chain.keys()))
 
-        sentence = [start_word]
+        sentence = list(start_words)
 
-        for _ in range(length - 1):
-            if sentence[-1] in self.markov_chain:
-                next_words = self.markov_chain[sentence[-1]]
+        for _ in range(length - 2):  # Already have 2 words
+            key = (sentence[-2], sentence[-1])  # Use last two words as key
 
-                # Build frequency dictionary
+            if key in self.markov_chain:
+                next_words = self.markov_chain[key]
+
+                # Use weighted randomness
                 frequency_dict = {}
                 for word in next_words:
                     frequency_dict[word] = frequency_dict.get(word, 0) + 1
 
-                # Implement weighted randomness using random.uniform()
-                total = sum(frequency_dict.values())  # Total occurrences
+                total = sum(frequency_dict.values())
                 rand_val = random.uniform(0, total)
 
                 cumulative = 0
@@ -64,7 +76,7 @@ class SentenceGenerator:
 
                 sentence.append(next_word)
             else:
-                break  # Stop if there are no more transitions
+                break  # Stop if no transitions exist
 
         return " ".join(sentence)
 
